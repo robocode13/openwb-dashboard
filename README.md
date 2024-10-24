@@ -2,6 +2,16 @@
 
 Ein übersichtliches Dashboard für die OpenWB Wallbox mit zusätzlichen Statistiken und Informationen
 
+## Screenshots
+
+### Übersicht
+
+<img src="docs/OpenWB-Dashboard-Screenshot1.png" alt="Screenshot 1">
+
+### Einstellungen
+
+<img src="docs/OpenWB-Dashboard-Screenshot2.png" alt="Screenshot 2" width=700>
+
 ## Getting Started
 
 Diese Anweisungen erklären, wie man das Projekt auf einem lokalen Rechner für Entwicklungs- und Testzwecke zum Laufen bringt. Siehe [Deployment](#deployment) für Hinweise, wie das Projekt auf einem Server-System bereitgestellt werden kann.

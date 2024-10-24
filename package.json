@@ -1,6 +1,11 @@
 {
 	"name": "openwb-dashboard",
 	"version": "1.0.0",
+	"description": "A clean dashboard for the OpenWB wallbox with additional statistics and information",
+	"author": {
+		"name": "Robert Weber",
+		"email": "robocode@outlook.com"
+	},
 	"private": true,
 	"scripts": {
 		"dev": "vite dev",
