@@ -1,0 +1,14 @@
+services:
+  app:
+    container_name: openwb-dashboard
+    image: openwb-dashboard
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/openwb-dashboard:/app/config
+    environment:
+      - TZ=Europe/Berlin
+      - PORT=3012
+    build:
+      context: ./
+    network_mode: host
+    restart: unless-stopped

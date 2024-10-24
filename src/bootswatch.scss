@@ -1,0 +1,57 @@
+@import 'bootswatch/dist/darkly/variables';
+
+// Your variable overrides can go here, e.g.:
+$web-font-path: 'https://fonts.googleapis.com/css2?family=Oswald&display=swap';
+$font-family-sans-serif: Oswald, sans-serif;
+
+$btn-padding-y-lg: 4px;
+$btn-padding-y: 3px;
+$btn-padding-y-sm: 2px;
+
+$input-bg: #4a4a4a;
+$input-color: #dddddd;
+$input-placeholder-color: #888888;
+
+$input-focus-bg: slateblue;
+$input-focus-border-color: slateblue;
+$input-focus-color: #eeee00;
+
+$input-disabled-color: #cccccc;
+$input-disabled-bg: #3a3a3a;
+
+$form-select-disabled-bg: $input-disabled-bg;
+$form-select-disabled-color: $input-disabled-color;
+
+$dropdown-bg: $input-bg;
+
+$popover-header-bg: #5b5b5b;
+$popover-bg: #4a4a4a;
+
+@import 'bootstrap/scss/bootstrap';
+@import 'bootswatch/dist/darkly/bootswatch';
+
+.form-select:focus {
+	color: $input-focus-color;
+	background-color: $input-focus-bg;
+}
+
+.form-check-input {
+	background-color: #4a4a4a;
+	border-color: slateblue;
+}
+
+.form-check-input:checked {
+	border-color: slateblue;
+}
+
+.btn-secondary {
+	--bs-btn-bg: #4a4a4a;
+}
+
+.btn-warning,
+.btn-danger {
+	--bs-btn-color: #000000;
+	--bs-btn-hover-color: #000000;
+	--bs-btn-active-color: #000000;
+	--bs-btn-disabled-color: #000000;
+}
