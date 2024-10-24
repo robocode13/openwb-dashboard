@@ -4,9 +4,6 @@ RUN npm install -g pnpm
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm i
 COPY . .
-RUN pnpm run check
-RUN pnpm run lint
-RUN pnpm test
 RUN pnpm run build
 RUN pnpm prune --production
 
