@@ -1,3 +1,5 @@
+[![Node.js CI](https://github.com/robocode13/openwb-dashboard/actions/workflows/node.js.yml/badge.svg)](https://github.com/robocode13/openwb-dashboard/actions/workflows/node.js.yml)
+
 # OpenWB - Dashboard
 
 Ein übersichtliches Dashboard für die OpenWB Wallbox mit zusätzlichen Statistiken und Informationen
