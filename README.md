@@ -58,6 +58,20 @@ kann das Projekt gebaut werden. Die Ausgabe im `build` Ordner kann auf einen Ser
 
 ### Docker
 
+Ein Deployment über Docker ist ebenfalls möglich. Das aktuellste Image erhält man über
+
+```
+docker pull robocode13/openwb-dashboard
+```
+
+Ein Container läßt sich dann folgendermaßen starten:
+
+```
+docker run -d --name openwb-dashboard -p 3000:3000 -v openwb-dashboard:/app/config robocode13/openwb-dashboard
+```
+
+Die Webseite ist dann im Browser unter http://localhost:3000 verfügbar.
+
 ## Verwendete Tools und Frameworks
 
 - [SvelteKit](https://kit.svelte.dev/) - Web Framework

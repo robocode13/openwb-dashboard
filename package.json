@@ -10,6 +10,7 @@
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
+		"build:docker": "docker buildx build --platform linux/amd64,linux/arm64 -t robocode13/openwb-dashboard:${npm_package_version} -t robocode13/openwb-dashboard:latest --push .",
 		"preview": "vite preview",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
