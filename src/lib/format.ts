@@ -28,6 +28,7 @@ export const dateTimeFormat = new Intl.DateTimeFormat('de-DE', {
 
 export const smallNumberFormat = new Intl.NumberFormat('de-DE', {
 	style: 'decimal',
+	minimumFractionDigits: 1,
 	maximumFractionDigits: 1
 });
 

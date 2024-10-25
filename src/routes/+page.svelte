@@ -7,10 +7,12 @@
 	import { dateEquals } from '$lib/dates';
 	import { Energy, Interval } from '$lib/energy';
 	import { isoDateFormat } from '$lib/format';
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import type { PageData } from './$types';
 	import hotkeys from 'hotkeys-js';
 	import AboutDialog from '$lib/components/AboutDialog.svelte';
+	import { connectToWallbox, disconnectFromWallbox } from '$lib/mqtt';
+	import type { Power } from '$lib/power';
 
 	export let data: PageData;
 
@@ -25,7 +27,25 @@
 	let readingDialog: ReadingsDialog;
 	let aboutDialog: AboutDialog;
 
+	let currentPower: Power | undefined = undefined;
+
+	$: isDataAvailable =
+		data.startReading && data.endReading && data.startReading.dateTime.getTime() !== data.endReading.dateTime.getTime();
+	$: energy = isDataAvailable ? Energy.fromReadings(data.startReading!, data.endReading!) : undefined;
+	$: changeInterval(interval);
+	$: canGoToPrevPeriod =
+		interval !== Interval.Lifetime &&
+		interval !== Interval.Custom &&
+		data.config.installationDate !== undefined &&
+		data.fromDate.getTime() > data.config.installationDate.getTime();
+	$: canGoToNextPeriod =
+		interval !== Interval.Lifetime && interval !== Interval.Custom && data.toDate.getTime() < today.getTime();
+
 	onMount(() => {
+		connectToWallbox(data.config.wallboxHost, (power) => {
+			currentPower = power;
+		});
+
 		hotkeys('left', goToPrevPeriod);
 		hotkeys('right', goToNextPeriod);
 		hotkeys('r', refresh);
@@ -106,17 +126,9 @@
 		});
 	});
 
-	$: isDataAvailable =
-		data.startReading && data.endReading && data.startReading.dateTime.getTime() !== data.endReading.dateTime.getTime();
-	$: energy = isDataAvailable ? Energy.fromReadings(data.startReading!, data.endReading!) : undefined;
-	$: changeInterval(interval);
-	$: canGoToPrevPeriod =
-		interval !== Interval.Lifetime &&
-		interval !== Interval.Custom &&
-		data.config.installationDate !== undefined &&
-		data.fromDate.getTime() > data.config.installationDate.getTime();
-	$: canGoToNextPeriod =
-		interval !== Interval.Lifetime && interval !== Interval.Custom && data.toDate.getTime() < today.getTime();
+	onDestroy(async () => {
+		await disconnectFromWallbox();
+	});
 
 	function initInterval(from: Date, to: Date): Interval {
 		if (
@@ -378,7 +390,7 @@
 	{/if}
 	{#if energy}
 		<div>
-			<EnergyFlowGraph {energy}></EnergyFlowGraph>
+			<EnergyFlowGraph {energy} power={currentPower}></EnergyFlowGraph>
 		</div>
 	{:else}
 		<h5>Für diesen Zeitraum sind keine Daten verfügbar</h5>
