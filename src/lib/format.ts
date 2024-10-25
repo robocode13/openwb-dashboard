@@ -51,6 +51,10 @@ export function formatValue(value: number): string {
 	return Math.abs(value) >= 100 ? bigNumberFormat.format(value) : smallNumberFormat.format(value);
 }
 
+export function formatPower(power: number): string {
+	return Math.abs(power) >= 1 ? smallNumberFormat.format(power) + ' kW' : bigNumberFormat.format(power * 1000) + ' W';
+}
+
 export function toLocalISO(date: Date): string {
 	const pad = (number: number) => (number < 10 ? '0' : '') + number;
 
