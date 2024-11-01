@@ -46,11 +46,11 @@ export async function connectToWallbox(host: string, callback: (power: Power) =>
 		listeners.forEach((listener) => listener(client.connected, getStatus()));
 	});
 
-	client.on('error', (error) => {
+	client.on('error', () => {
 		listeners.forEach((listener) => listener(client.connected, getStatus()));
 	});
 
-	client.on('message', (topic, message) => {
+	client.on('message', (topic: string, message: Buffer) => {
 		lastReceivedMessageDate = new Date();
 		switch (topic) {
 			case 'openWB/counter/get/hierarchy':

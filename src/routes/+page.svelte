@@ -13,7 +13,6 @@
 	import AboutDialog from '$lib/components/AboutDialog.svelte';
 	import { addStatusListener, connectToWallbox, disconnectFromWallbox } from '$lib/mqtt';
 	import type { Power } from '$lib/power';
-	import { browser } from '$app/environment';
 
 	export let data: PageData;
 
@@ -32,6 +31,7 @@
 
 	let isConnected: boolean = false;
 	let connectionStatus: string = '';
+	let intervalTimer: number | undefined = undefined;
 
 	addStatusListener((connected, status) => {
 		console.log('MQTT connection status:', connected, status);
@@ -52,9 +52,16 @@
 		interval !== Interval.Lifetime && interval !== Interval.Custom && data.toDate.getTime() < today.getTime();
 
 	onMount(() => {
-		document.addEventListener('visibilitychange', handleVisibilityChange);
-
 		handleVisibilityChange();
+
+		const now = new Date();
+		const nextFiveMinutes = new Date(now);
+		nextFiveMinutes.setMinutes(Math.ceil(now.getMinutes() / 5) * 5, 30, 0);
+		const delay = nextFiveMinutes.getTime() - now.getTime();
+		setTimeout(() => {
+			refreshWhenToday();
+			intervalTimer = setInterval(refreshWhenToday, 5 * 60 * 1000, 'interval');
+		}, delay);
 
 		hotkeys('left', goToPrevPeriod);
 		hotkeys('right', goToNextPeriod);
@@ -137,9 +144,10 @@
 	});
 
 	onDestroy(async () => {
-		if (browser) {
-			document.removeEventListener('visibilitychange', handleVisibilityChange);
+	    if (intervalTimer) {
+			clearInterval(intervalTimer);
 		}
+
 		await disconnectFromWallbox();
 	});
 
@@ -316,6 +324,18 @@
 		}
 	}
 
+	function currentPeriodIsToday() {
+		const today = new Date();
+		today.setHours(0, 0, 0, 0);
+		return dateEquals(data.fromDate, today) && dateEquals(data.toDate, today);
+	}
+
+	function refreshWhenToday() {
+		if (currentPeriodIsToday()) {
+			refresh();
+		}
+	}
+
 	function refresh() {
 		invalidateAll();
 	}
@@ -349,6 +369,8 @@
 	<ReadingsDialog bind:this={readingDialog} startReading={data.startReading} endReading={data.endReading}>
 	</ReadingsDialog>
 {/if}
+
+<svelte:document on:visibilitychange={handleVisibilityChange} />
 
 <div class="d-flex">
 	<form class="d-flex mx-auto mb-10">
