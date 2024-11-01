@@ -306,7 +306,7 @@
 			case Interval.Day:
 				return fromDate.toLocaleDateString();
 			case Interval.Month:
-				return fromDate.toLocaleDateString('default', { month: 'long', year: 'numeric' });
+				return fromDate.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' });
 			case Interval.Year:
 				return fromDate.getFullYear().toString();
 			case Interval.Lifetime:
