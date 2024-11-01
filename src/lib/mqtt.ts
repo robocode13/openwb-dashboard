@@ -1,6 +1,15 @@
 import mqtt, { type MqttClient } from 'mqtt';
 import { Power } from './power';
 
+type Counter = {
+	id: number;
+	type: string;
+	children: Counter[];
+};
+
+let counters: Counter[] = [];
+let counterId: number | undefined;
+
 let client: MqttClient;
 let lastReceivedMessageDate: Date;
 
@@ -20,8 +29,6 @@ export function addStatusListener(listener: (isConnected: boolean, status: strin
 
 export async function connectToWallbox(host: string, callback: (power: Power) => void) {
 	client = mqtt.connect(`ws://${host}/ws`, { keepalive: 10 });
-
-	// TODO: determine counter ID dynamically
 
 	client.on('connect', () => {
 		listeners.forEach((listener) => listener(client.connected, getStatus()));
@@ -46,10 +53,15 @@ export async function connectToWallbox(host: string, callback: (power: Power) =>
 	client.on('message', (topic, message) => {
 		lastReceivedMessageDate = new Date();
 		switch (topic) {
+			case 'openWB/counter/get/hierarchy':
+				counters = JSON.parse(message.toString());
+				counterId = getCounterId(counters);
+				client.subscribe(`openWB/counter/${counterId}/get/power`);
+				break;
 			case 'openWB/pv/get/power':
 				pv = parseFloat(message.toString());
 				break;
-			case 'openWB/counter/0/get/power':
+			case `openWB/counter/${counterId}/get/power`:
 				grid = parseFloat(message.toString());
 				break;
 			case 'openWB/bat/get/power':
@@ -69,7 +81,7 @@ export async function connectToWallbox(host: string, callback: (power: Power) =>
 	});
 
 	await client.subscribeAsync([
-		'openWB/counter/0/get/power',
+		'openWB/counter/get/hierarchy',
 		'openWB/pv/get/power',
 		'openWB/chargepoint/get/power',
 		'openWB/bat/get/power',
@@ -82,6 +94,10 @@ export async function disconnectFromWallbox() {
 		await client.endAsync();
 		client.removeAllListeners();
 	}
+}
+
+function getCounterId(counters: Counter[]): number | undefined {
+	return counters.find((counter) => counter.type === 'counter')?.id;
 }
 
 function getStatus(): string {
