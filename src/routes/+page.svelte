@@ -13,6 +13,7 @@
 	import AboutDialog from '$lib/components/AboutDialog.svelte';
 	import { addStatusListener, connectToWallbox, disconnectFromWallbox } from '$lib/mqtt';
 	import type { Power } from '$lib/power';
+	import { browser } from '$app/environment';
 
 	export let data: PageData;
 
@@ -51,9 +52,9 @@
 		interval !== Interval.Lifetime && interval !== Interval.Custom && data.toDate.getTime() < today.getTime();
 
 	onMount(() => {
-		connectToWallbox(data.config.wallboxHost, (power) => {
-			currentPower = power;
-		});
+		document.addEventListener('visibilitychange', handleVisibilityChange);
+
+		handleVisibilityChange();
 
 		hotkeys('left', goToPrevPeriod);
 		hotkeys('right', goToNextPeriod);
@@ -136,8 +137,21 @@
 	});
 
 	onDestroy(async () => {
+		if (browser) {
+			document.removeEventListener('visibilitychange', handleVisibilityChange);
+		}
 		await disconnectFromWallbox();
 	});
+
+	function handleVisibilityChange() {
+		if (document.hidden) {
+			disconnectFromWallbox();
+		} else {
+			connectToWallbox(data.config.wallboxHost, (power) => {
+				currentPower = power;
+			});
+		}
+	}
 
 	function initInterval(from: Date, to: Date): Interval {
 		if (
