@@ -47,8 +47,10 @@ export const currencyFormat = new Intl.NumberFormat('de-DE', {
 	currency: 'EUR'
 });
 
-export function formatValue(value: number): string {
-	return Math.abs(value) >= 100 ? bigNumberFormat.format(value) : smallNumberFormat.format(value);
+export function formatEnergy(value: number): string {
+	let valueString = Math.abs(value) >= 100 ? bigNumberFormat.format(value) : smallNumberFormat.format(value);
+	valueString += ' kWh';
+	return valueString;
 }
 
 export function formatPower(power: number): string {
