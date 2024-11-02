@@ -11,7 +11,7 @@ let counters: Counter[] = [];
 let counterId: number | undefined;
 
 let client: MqttClient;
-let lastReceivedMessageDate: Date;
+let lastReceivedMessageDate: Date | undefined;
 
 let listeners: ((isConnected: boolean, status: string) => void)[] = [];
 
@@ -108,8 +108,12 @@ function getStatus(): string {
 	if (client.connected) {
 		return 'verbunden';
 	} else if (client.reconnecting) {
-		const seconds = Math.round((new Date().getTime() - lastReceivedMessageDate.getTime()) / 1000);
-		return `Verbindung wird wiederhergestellt, letzte Nachricht vor ${seconds} Sekunden`;
+		let status = 'Verbindung wird wiederhergestellt';
+		if (lastReceivedMessageDate) {
+			const seconds = Math.round((new Date().getTime() - lastReceivedMessageDate.getTime()) / 1000);
+			status += `, letzte Nachricht vor ${seconds} Sekunden`;
+		}
+		return status;
 	} else {
 		return 'keine Verbindung';
 	}

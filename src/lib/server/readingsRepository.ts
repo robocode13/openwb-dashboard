@@ -102,9 +102,6 @@ async function readCachedDayReadings(date: Date, config: Config): Promise<DayRea
 			endOfDay: readings[readings.length - 1]
 		};
 
-		const today = new Date();
-		today.setHours(0, 0, 0, 0);
-
 		dayReadingsCache.set(isoDateFormat.format(date), dayReadings);
 
 		return dayReadings;

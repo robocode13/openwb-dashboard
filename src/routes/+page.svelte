@@ -13,6 +13,7 @@
 	import AboutDialog from '$lib/components/AboutDialog.svelte';
 	import { addStatusListener, connectToWallbox, disconnectFromWallbox } from '$lib/mqtt';
 	import type { Power } from '$lib/power';
+	import { Battery } from '$lib/battery';
 
 	export let data: PageData;
 
@@ -28,6 +29,7 @@
 	let aboutDialog: AboutDialog;
 
 	let currentPower: Power | undefined = undefined;
+	let battery = new Battery(5.12, 7);
 
 	let isConnected: boolean = false;
 	let connectionStatus: string = '';
@@ -144,7 +146,7 @@
 	});
 
 	onDestroy(async () => {
-	    if (intervalTimer) {
+		if (intervalTimer) {
 			clearInterval(intervalTimer);
 		}
 
@@ -443,7 +445,7 @@
 	{/if}
 	{#if energy}
 		<div>
-			<EnergyFlowGraph {energy} power={currentPower}></EnergyFlowGraph>
+			<EnergyFlowGraph {energy} {battery} power={currentPower}></EnergyFlowGraph>
 		</div>
 	{:else}
 		<h5>Für diesen Zeitraum sind keine Daten verfügbar</h5>

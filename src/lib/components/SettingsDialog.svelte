@@ -2,7 +2,7 @@
 	import Dialog from './Dialog.svelte';
 	import DateInput from './DateInput.svelte';
 	import type { BuyPrice, Config } from '$lib/config';
-	import { currencyFormat, dateFormat, dateTimeFormat, readingNumberFormat, smallNumberFormat } from '$lib/format';
+	import { currencyFormat, dateFormat, dateTimeFormat, readingNumberFormat, decimalFormat } from '$lib/format';
 	import { onMount, tick } from 'svelte';
 	import { mergeRepairs, type ReadingAdjustment, type Repair } from '$lib/repair';
 	import { parse } from 'devalue';
@@ -257,7 +257,7 @@
 				{#each buyPrices as buyPrice}
 					<option value={buyPrice}>
 						{dateFormat.format(buyPrice.date)}
-						{smallNumberFormat.format(buyPrice.unitPrice * 100)} ct/kWh /
+						{decimalFormat.format(buyPrice.unitPrice * 100)} ct/kWh /
 						{currencyFormat.format(buyPrice.basePricePerYear)}/Jahr
 					</option>
 				{/each}

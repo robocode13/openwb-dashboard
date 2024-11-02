@@ -26,13 +26,13 @@ export const dateTimeFormat = new Intl.DateTimeFormat('de-DE', {
 	minute: '2-digit'
 });
 
-export const smallNumberFormat = new Intl.NumberFormat('de-DE', {
+export const decimalFormat = new Intl.NumberFormat('de-DE', {
 	style: 'decimal',
 	minimumFractionDigits: 1,
 	maximumFractionDigits: 1
 });
 
-export const bigNumberFormat = new Intl.NumberFormat('de-DE', {
+export const integerFormat = new Intl.NumberFormat('de-DE', {
 	style: 'decimal',
 	maximumFractionDigits: 0
 });
@@ -48,13 +48,13 @@ export const currencyFormat = new Intl.NumberFormat('de-DE', {
 });
 
 export function formatEnergy(value: number): string {
-	let valueString = Math.abs(value) >= 100 ? bigNumberFormat.format(value) : smallNumberFormat.format(value);
+	let valueString = Math.abs(value) >= 100 ? integerFormat.format(value) : decimalFormat.format(value);
 	valueString += ' kWh';
 	return valueString;
 }
 
 export function formatPower(power: number): string {
-	return Math.abs(power) >= 1 ? smallNumberFormat.format(power) + ' kW' : bigNumberFormat.format(power * 1000) + ' W';
+	return Math.abs(power) >= 1 ? decimalFormat.format(power) + ' kW' : integerFormat.format(power * 1000) + ' W';
 }
 
 export function toLocalISO(date: Date): string {
@@ -68,4 +68,14 @@ export function toLocalISO(date: Date): string {
 	const seconds = pad(date.getSeconds());
 
 	return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+}
+
+export function formatHours(hours: number) {
+	if (hours >= 24) {
+		return integerFormat.format(hours) + ' h';
+	} else if (hours >= 3) {
+		return decimalFormat.format(hours) + ' h';
+	} else {
+		return integerFormat.format(hours * 60) + ' min';
+	}
 }

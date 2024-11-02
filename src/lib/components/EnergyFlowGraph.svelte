@@ -1,13 +1,47 @@
 <script lang="ts">
+	import type { Battery } from '$lib/battery';
 	import type { Energy } from '$lib/energy';
-	import { formatPower, formatEnergy as formatEnergy } from '$lib/format';
+	import { formatPower, formatEnergy as formatEnergy, formatHours } from '$lib/format';
 	import type { Power } from '$lib/power';
 	import Ring from './Ring.svelte';
 	import SvgRing from './SvgRing.svelte';
 	import WarningIcon from './WarningIcon.svelte';
 
 	export let energy: Energy;
+	export let battery: Battery;
 	export let power: Power | undefined;
+
+	$: batteryStatus = updateBattery(power);
+
+	function updateBattery(power?: Power) {
+		if (power) {
+			battery.updateSoc(power.batterySoc);
+
+			if (power.batteryIn > 0) {
+				battery.addCurrentCharge(power.batteryIn);
+				const hoursUntilFull = battery.getHoursUntilFull();
+				if (hoursUntilFull !== null) {
+					return `voll in ${formatHours(hoursUntilFull)}`;
+				} else {
+					return 'lädt';
+				}
+			}
+
+			if (power.batteryOut > 0) {
+				battery.addCurrentDischarge(power.batteryOut);
+				const hoursUntilEmpty = battery.getHoursUntilEmpty();
+				if (hoursUntilEmpty !== null) {
+					return `leer in ${formatHours(hoursUntilEmpty)}`;
+				} else {
+					return 'entlädt';
+				}
+			}
+
+			return 'bereit';
+		}
+
+		return '';
+	}
 </script>
 
 <style lang="scss">
@@ -68,9 +102,7 @@
 			</SvgRing>
 		</g>
 		<g transform="translate(320 160)" class="green">
-			<SvgRing
-				subText="{energy.batteryIn > energy.batteryOut ? '+' : ''}{formatEnergy(energy.batteryIn - energy.batteryOut)}"
-				text={power ? power.batterySoc + '%' : ''}>
+			<SvgRing subText={batteryStatus} text={power ? power.batterySoc + '%' : ''}>
 				<path d="M2 6h5v4H2z" />
 				<path
 					d="M2 4a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm10 1a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm4 3a1.5 1.5 0 0 1-1.5 1.5v-3A1.5 1.5 0 0 1 16 8" />
