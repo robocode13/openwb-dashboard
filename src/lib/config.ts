@@ -3,9 +3,11 @@ import type { Repair } from './repair';
 export type Config = {
 	wallboxHost: string;
 	wallboxVersion: number;
-	installationDate: Date | undefined;
+	installationDate?: Date;
 	sellPrice: number;
 	buyPrices: BuyPrice[];
+	batteryCapacity?: number;
+	batteryMinSoc?: number;
 	repair: Repair;
 };
 

@@ -21,6 +21,8 @@
 	let buyPriceDate: Date | undefined = undefined;
 	let buyPriceBase: number | undefined;
 	let buyPriceUnit: number | undefined;
+	let batteryCapacity: number | undefined;
+	let batteryMinSoc: number | undefined;
 	let blacklist: string[] = [];
 	let adjustments: ReadingAdjustment[] = [];
 	let isCheckingReadings = false;
@@ -43,7 +45,9 @@
 		isValidDate(installationDate) &&
 		isPositiveNumber(sellPrice) &&
 		!isBuyingPriceModified &&
-		areAllBuyPricesValid(buyPrices);
+		areAllBuyPricesValid(buyPrices) &&
+		(batteryCapacity === undefined || isPositiveNumber(batteryCapacity)) &&
+		(batteryMinSoc === undefined || (isPositiveNumber(batteryMinSoc) && batteryMinSoc <= 100));
 
 	function sleep(ms: number) {
 		return new Promise((resolve) => setTimeout(resolve, ms));
@@ -71,6 +75,8 @@
 			.map((buyPrice) => ({ ...buyPrice }))
 			.sort((a, b) => a.date.getTime() - b.date.getTime());
 		selectedBuyPrice = buyPrices.length > 0 ? buyPrices[buyPrices.length - 1] : undefined;
+		batteryCapacity = config.batteryCapacity;
+		batteryMinSoc = config.batteryMinSoc;
 		blacklist = [...config.repair.blacklist];
 		adjustments = [...config.repair.adjustments];
 
@@ -180,6 +186,8 @@
 		config.installationDate = installationDate;
 		config.sellPrice = sellPrice!;
 		config.buyPrices = buyPrices;
+		config.batteryCapacity = batteryCapacity;
+		config.batteryMinSoc = batteryMinSoc;
 		config.repair.adjustments = adjustments;
 		//config.repair.blacklist = blacklist;
 
@@ -325,6 +333,34 @@
 				class="btn btn-sm btn-warning">
 				Zurücksetzen
 			</button>
+		</div>
+		<div class="col-6">
+			<label for="batteryCapacity" class="form-label">Akkukapazität</label>
+			<div class="input-group">
+				<span class="input-group-text">
+					<svg width="16" height="16" fill="currentColor" class="bi bi-battery-full" viewBox="0 0 16 16">
+						<path d="M2 6h10v4H2z" />
+						<path
+							d="M2 4a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm10 1a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm4 3a1.5 1.5 0 0 1-1.5 1.5v-3A1.5 1.5 0 0 1 16 8" />
+					</svg>
+				</span>
+				<NumberInput id="batteryCapacity" bind:number={batteryCapacity} locale="de-DE" class="form-control">
+				</NumberInput>
+				<span class="input-group-text">kWh</span>
+			</div>
+		</div>
+		<div class="col-6">
+			<label for="batteryMinSoc" class="form-label">Minimaler SOC</label>
+			<div class="input-group">
+				<span class="input-group-text">
+					<svg width="16" height="16" fill="currentColor" class="bi bi-battery" viewBox="0 0 16 16">
+						<path
+							d="M0 6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1zm14 3a1.5 1.5 0 0 1-1.5 1.5v-3A1.5 1.5 0 0 1 16 8" />
+					</svg>
+				</span>
+				<NumberInput id="batteryMinSoc" bind:number={batteryMinSoc} locale="de-DE" class="form-control"></NumberInput>
+				<span class="input-group-text">%</span>
+			</div>
 		</div>
 	</div>
 	<div class="row mt-3">

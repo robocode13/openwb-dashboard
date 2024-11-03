@@ -8,12 +8,16 @@
 	import WarningIcon from './WarningIcon.svelte';
 
 	export let energy: Energy;
-	export let battery: Battery;
+	export let battery: Battery | undefined;
 	export let power: Power | undefined;
 
 	$: batteryStatus = updateBattery(power);
 
 	function updateBattery(power?: Power) {
+		if (!battery) {
+			return '';
+		}
+
 		if (power) {
 			battery.updateSoc(power.batterySoc);
 

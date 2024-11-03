@@ -29,7 +29,9 @@
 	let aboutDialog: AboutDialog;
 
 	let currentPower: Power | undefined = undefined;
-	let battery = new Battery(5.12, 7);
+	let battery = data.config.batteryCapacity
+		? new Battery(data.config.batteryCapacity, data.config.batteryMinSoc ?? 0)
+		: undefined;
 
 	let isConnected: boolean = false;
 	let connectionStatus: string = '';

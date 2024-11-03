@@ -6,7 +6,6 @@ const configFilePath = 'config/config.json';
 const defaultConfig: Config = {
 	wallboxHost: 'openwb',
 	wallboxVersion: 2,
-	installationDate: undefined,
 	sellPrice: 0,
 	buyPrices: [],
 	repair: {
