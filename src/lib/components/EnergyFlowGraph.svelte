@@ -17,6 +17,14 @@
 		if (power) {
 			battery.updateSoc(power.batterySoc);
 
+			if (battery.isFull) {
+				return 'voll';
+			}
+
+			if (battery.isEmpty) {
+				return 'leer';
+			}
+
 			if (power.batteryIn > 0) {
 				battery.addCurrentCharge(power.batteryIn);
 				const hoursUntilFull = battery.getHoursUntilFull();

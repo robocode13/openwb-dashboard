@@ -76,4 +76,12 @@ export class Battery {
 
 		return unusedCapacity / averageCharge;
 	}
+
+	get isFull(): boolean {
+		return this.soc ? Math.round(this.soc) === 100 : false;
+	}
+
+	get isEmpty(): boolean {
+		return this.soc ? Math.round(this.soc) <= this.minSoc : false;
+	}
 }
