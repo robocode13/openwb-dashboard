@@ -20,7 +20,7 @@
 			if (power.batteryIn > 0) {
 				battery.addCurrentCharge(power.batteryIn);
 				const hoursUntilFull = battery.getHoursUntilFull();
-				if (hoursUntilFull !== null) {
+				if (hoursUntilFull !== null && hoursUntilFull < 100) {
 					return `voll in ${formatHours(hoursUntilFull)}`;
 				} else {
 					return 'lädt';
@@ -30,14 +30,14 @@
 			if (power.batteryOut > 0) {
 				battery.addCurrentDischarge(power.batteryOut);
 				const hoursUntilEmpty = battery.getHoursUntilEmpty();
-				if (hoursUntilEmpty !== null) {
+				if (hoursUntilEmpty !== null && hoursUntilEmpty < 100) {
 					return `leer in ${formatHours(hoursUntilEmpty)}`;
 				} else {
 					return 'entlädt';
 				}
 			}
 
-			return 'bereit';
+			return 'inaktiv';
 		}
 
 		return '';
