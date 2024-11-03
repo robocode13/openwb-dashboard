@@ -316,7 +316,7 @@
 	function getPeriodDisplayText(fromDate: Date, toDate: Date) {
 		switch (interval) {
 			case Interval.Day:
-				return fromDate.toLocaleDateString();
+				return fromDate.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' });
 			case Interval.Month:
 				return fromDate.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' });
 			case Interval.Year:
@@ -324,7 +324,7 @@
 			case Interval.Lifetime:
 				return 'Seit Inbetriebnahme';
 			case Interval.Custom:
-				return fromDate.toLocaleDateString() + ' - ' + toDate.toLocaleDateString();
+				return fromDate.toLocaleDateString('de-DE') + ' - ' + toDate.toLocaleDateString('de-DE');
 		}
 	}
 
