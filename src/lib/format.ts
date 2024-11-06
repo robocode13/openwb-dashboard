@@ -54,6 +54,7 @@ export function formatEnergy(value: number): string {
 }
 
 export function formatPower(power: number): string {
+	power = Math.max(0, power);
 	return Math.abs(power) >= 1 ? decimalFormat.format(power) + ' kW' : integerFormat.format(power * 1000) + ' W';
 }
 

@@ -145,9 +145,35 @@
 		</g>
 
 		<g class="yellow" fill="transparent" stroke-width="2">
-			<path d="M215 117 v88 a15 15 0 0 1 -15 15 h-80" />
+			<path id="pvToGrid" d="M215 117 v88 a15 15 0 0 1 -15 15 h-80" />
 			<line x1="220" y1="120" x2="220" y2="320" />
 			<path d="M225 117 v88 a15 15 0 0 0 15 15 h80" />
+
+			<circle r="3" class="yellow" fill="currentColor">
+				<animateMotion dur="2s" repeatCount="indefinite">
+					<mpath href="#pvToGrid" />
+				</animateMotion>
+			</circle>
+			<circle r="3" class="yellow" fill="currentColor">
+				<animateMotion dur="2s" repeatCount="indefinite" begin="0.4">
+					<mpath href="#pvToGrid" />
+				</animateMotion>
+			</circle>
+			<circle r="3" class="yellow" fill="currentColor">
+				<animateMotion dur="2s" repeatCount="indefinite" begin="0.8">
+					<mpath href="#pvToGrid" />
+				</animateMotion>
+			</circle>
+			<circle r="3" class="yellow" fill="currentColor">
+				<animateMotion dur="2s" repeatCount="indefinite" begin="1.2">
+					<mpath href="#pvToGrid" />
+				</animateMotion>
+			</circle>
+			<circle r="3" class="yellow" fill="currentColor">
+				<animateMotion dur="2s" repeatCount="indefinite" begin="1.6">
+					<mpath href="#pvToGrid" />
+				</animateMotion>
+			</circle>
 		</g>
 		<g class="yellow" fill="currentColor" stroke-width="0" font-size="12">
 			<text x="125" y="216">{power ? formatPower(power.gridOut) : ''}</text>
