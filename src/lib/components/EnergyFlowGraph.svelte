@@ -4,14 +4,64 @@
 	import { formatPower, formatEnergy as formatEnergy, formatHours } from '$lib/format';
 	import type { Power } from '$lib/power';
 	import Ring from './Ring.svelte';
+	import SvgDot from './SvgDot.svelte';
 	import SvgRing from './SvgRing.svelte';
 	import WarningIcon from './WarningIcon.svelte';
+
+	type AnimatedDot = {
+		pathId: string;
+		duration: number;
+		begin: number;
+		cssClass: string;
+	};
 
 	export let energy: Energy;
 	export let battery: Battery | undefined;
 	export let power: Power | undefined;
 
+	$: animatedDots = updateDotAnimation(power);
 	$: batteryStatus = updateBattery(power);
+
+	function updateDotAnimation(power?: Power): AnimatedDot[] {
+		const dots = [];
+
+		if (power) {
+			dots.push(...createDotsForPower(power.gridOut, '#pvToGrid', 'yellow'));
+			dots.push(...createDotsForPower(power.directPv, '#pvToHome', 'yellow'));
+			dots.push(...createDotsForPower(power.batteryIn, '#pvToBattery', 'yellow'));
+			dots.push(...createDotsForPower(power.gridIn, '#gridToHome', 'gray'));
+			dots.push(...createDotsForPower(power.batteryOut, '#batteryToHome', 'green'));
+		}
+
+		return dots;
+	}
+
+	function createDotsForPower(power: number, pathId: string, cssClass: string): AnimatedDot[] {
+		const dots: AnimatedDot[] = [];
+
+		let count = Math.round(power);
+		if (count == 0 && power >= 0.01) {
+			count = 1;
+		}
+
+		if (count <= 0) {
+			return dots;
+		}
+
+		count = Math.min(count, 5);
+		const distance = 1 / count;
+
+		for (let i = 0; i < count; i++) {
+			dots.push({
+				pathId: pathId,
+				duration: 2,
+				begin: i * distance,
+				cssClass: cssClass
+			});
+		}
+
+		return dots;
+	}
 
 	function updateBattery(power?: Power) {
 		if (!battery) {
@@ -146,34 +196,8 @@
 
 		<g class="yellow" fill="transparent" stroke-width="2">
 			<path id="pvToGrid" d="M215 117 v88 a15 15 0 0 1 -15 15 h-80" />
-			<line x1="220" y1="120" x2="220" y2="320" />
-			<path d="M225 117 v88 a15 15 0 0 0 15 15 h80" />
-
-			<circle r="3" class="yellow" fill="currentColor">
-				<animateMotion dur="2s" repeatCount="indefinite">
-					<mpath href="#pvToGrid" />
-				</animateMotion>
-			</circle>
-			<circle r="3" class="yellow" fill="currentColor">
-				<animateMotion dur="2s" repeatCount="indefinite" begin="0.4">
-					<mpath href="#pvToGrid" />
-				</animateMotion>
-			</circle>
-			<circle r="3" class="yellow" fill="currentColor">
-				<animateMotion dur="2s" repeatCount="indefinite" begin="0.8">
-					<mpath href="#pvToGrid" />
-				</animateMotion>
-			</circle>
-			<circle r="3" class="yellow" fill="currentColor">
-				<animateMotion dur="2s" repeatCount="indefinite" begin="1.2">
-					<mpath href="#pvToGrid" />
-				</animateMotion>
-			</circle>
-			<circle r="3" class="yellow" fill="currentColor">
-				<animateMotion dur="2s" repeatCount="indefinite" begin="1.6">
-					<mpath href="#pvToGrid" />
-				</animateMotion>
-			</circle>
+			<path id="pvToHome" d="M220 117v203" x1="220" />
+			<path id="pvToBattery" d="M225 117 v88 a15 15 0 0 0 15 15 h80" />
 		</g>
 		<g class="yellow" fill="currentColor" stroke-width="0" font-size="12">
 			<text x="125" y="216">{power ? formatPower(power.gridOut) : ''}</text>
@@ -189,7 +213,7 @@
 		</g>
 
 		<g class="gray" fill="transparent" stroke-width="2">
-			<path d="M60 280 v85 a15 15 0 0 0 15 15 h85" />
+			<path id="gridToHome" d="M60 280 v85 a15 15 0 0 0 15 15 h85" />
 		</g>
 		<g class="gray" fill="currentColor" stroke-width="0" font-size="12">
 			<text x="155" y="376" text-anchor="end">{power ? formatPower(power.gridIn) : ''}</text>
@@ -199,7 +223,7 @@
 		</g>
 
 		<g class="green" fill="transparent" stroke-width="2">
-			<path d="M380 280 v85 a15 15 0 0 1 -15 15 h-85" />
+			<path id="batteryToHome" d="M380 280 v85 a15 15 0 0 1 -15 15 h-85" />
 		</g>
 		<g class="green" fill="currentColor" stroke-width="0" font-size="12">
 			<text x="285" y="376">{power ? formatPower(power.batteryOut) : ''}</text>
@@ -207,6 +231,12 @@
 		<g class="green" fill="currentColor" stroke-width="0" font-size="12">
 			<text x="285" y="395">{formatEnergy(energy.batteryOut)}</text>
 		</g>
+
+		{#each animatedDots as dot}
+			<g class={dot.cssClass}>
+				<SvgDot pathId={dot.pathId} duration={dot.duration} begin={dot.begin}></SvgDot>
+			</g>
+		{/each}
 	</svg>
 
 	<div style="width: 120px; height: 120px;" class="blue lh-sm">
