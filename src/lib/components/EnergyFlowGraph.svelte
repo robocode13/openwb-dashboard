@@ -12,12 +12,12 @@
 
 	type AnimatedDot = {
 		id: string;
-		syncId: string;
 		pathId: string;
 		radius: number;
 		duration: number;
 		begin: string;
 		cssClass: string;
+		phasingOut?: boolean;
 	};
 
 	export let energy: Energy;
@@ -40,24 +40,14 @@
 	});
 
 	async function updateDotAnimation(power?: Power) {
-		const dots = [];
+		const dots: AnimatedDot[] = [];
 
 		if (power) {
 			dots.push(...createDotsForPower(power.gridOut, 'pvToGrid', 'yellow'));
-			dots.push(...createDotsForPower(power.directPv, 'pvToHome', 'yellow'));
+			dots.push(...createDotsForPower(currentPower, 'pvToHome', 'yellow'));
 			dots.push(...createDotsForPower(power.batteryIn, 'pvToBattery', 'yellow'));
 			dots.push(...createDotsForPower(power.gridIn, 'gridToHome', 'gray'));
 			dots.push(...createDotsForPower(power.batteryOut, 'batteryToHome', 'green'));
-		}
-
-		const changedDots = dots.filter((dot) => {
-			const existingDot = animatedDots.find((d) => d.id === dot.id);
-			return existingDot && existingDot.begin !== dot.begin;
-		});
-
-		if (changedDots.length > 0) {
-			animatedDots = [];
-			await tick();
 		}
 
 		animatedDots = dots;
@@ -66,6 +56,7 @@
 	function createDotsForPower(power: number, pathId: string, cssClass: string): AnimatedDot[] {
 		const duration = 2;
 		const dots: AnimatedDot[] = [];
+		let nextId = pathId + (dots.length + 1);
 		let radius = 3.5;
 
 		let count = Math.floor(power + 1);
@@ -86,15 +77,15 @@
 
 		for (let i = 0; i < count; i++) {
 			const id = pathId + i;
-			const syncId = i > 0 ? pathId + (i - 1) : '';
+			const syncId = pathId + 0;
+			const begin = i > 0 ? syncId + '.begin + ' + distance * i + 's' : '0s';
 
 			dots.push({
 				id: id,
-				syncId: syncId,
 				pathId: pathId,
 				radius: radius,
 				duration: duration,
-				begin: i > 0 ? syncId + '.begin + ' + distance + 's' : '0s',
+				begin: begin,
 				cssClass: cssClass
 			});
 		}
