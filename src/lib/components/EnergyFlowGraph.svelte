@@ -3,15 +3,19 @@
 	import type { Energy } from '$lib/energy';
 	import { formatPower, formatEnergy as formatEnergy, formatHours } from '$lib/format';
 	import type { Power } from '$lib/power';
+	import { onMount, tick } from 'svelte';
 	import Ring from './Ring.svelte';
 	import SvgDot from './SvgDot.svelte';
 	import SvgRing from './SvgRing.svelte';
 	import WarningIcon from './WarningIcon.svelte';
+	import hotkeys from 'hotkeys-js';
 
 	type AnimatedDot = {
+		id: string;
+		syncId: string;
 		pathId: string;
 		duration: number;
-		begin: number;
+		begin: string;
 		cssClass: string;
 	};
 
@@ -19,21 +23,43 @@
 	export let battery: Battery | undefined;
 	export let power: Power | undefined;
 
-	$: animatedDots = updateDotAnimation(power);
+	let currentPower = 0.5;
+	let animatedDots: AnimatedDot[] = [];
+
+	$: updateDotAnimation(power);
 	$: batteryStatus = updateBattery(power);
 
-	function updateDotAnimation(power?: Power): AnimatedDot[] {
+	onMount(() => {
+		hotkeys('space', () => {
+			currentPower += 1;
+		});
+		hotkeys('backspace', () => {
+			currentPower -= 1;
+		});
+	});
+
+	async function updateDotAnimation(power?: Power) {
 		const dots = [];
 
 		if (power) {
-			dots.push(...createDotsForPower(power.gridOut, '#pvToGrid', 'yellow'));
-			dots.push(...createDotsForPower(power.directPv, '#pvToHome', 'yellow'));
-			dots.push(...createDotsForPower(power.batteryIn, '#pvToBattery', 'yellow'));
-			dots.push(...createDotsForPower(power.gridIn, '#gridToHome', 'gray'));
-			dots.push(...createDotsForPower(power.batteryOut, '#batteryToHome', 'green'));
+			dots.push(...createDotsForPower(power.gridOut, 'pvToGrid', 'yellow'));
+			dots.push(...createDotsForPower(power.directPv, 'pvToHome', 'yellow'));
+			dots.push(...createDotsForPower(power.batteryIn, 'pvToBattery', 'yellow'));
+			dots.push(...createDotsForPower(currentPower, 'gridToHome', 'gray'));
+			dots.push(...createDotsForPower(power.batteryOut, 'batteryToHome', 'green'));
 		}
 
-		return dots;
+		const changedDots = dots.filter((dot) => {
+			const existingDot = animatedDots.find((d) => d.id === dot.id);
+			return existingDot && existingDot.begin !== dot.begin;
+		});
+
+		if (changedDots.length > 0) {
+			animatedDots = [];
+			await tick();
+		}
+
+		animatedDots = dots;
 	}
 
 	function createDotsForPower(power: number, pathId: string, cssClass: string): AnimatedDot[] {
@@ -49,13 +75,18 @@
 		}
 
 		count = Math.min(count, 5);
-		const distance = 1 / count;
+		const distance = 2 / count;
 
 		for (let i = 0; i < count; i++) {
+			const id = pathId + i;
+			const syncId = i > 0 ? pathId + (i - 1) : '';
+
 			dots.push({
+				id: id,
+				syncId: syncId,
 				pathId: pathId,
 				duration: 2,
-				begin: i * distance,
+				begin: i > 0 ? syncId + '.begin + ' + distance + 's' : '0s',
 				cssClass: cssClass
 			});
 		}
@@ -232,9 +263,9 @@
 			<text x="285" y="395">{formatEnergy(energy.batteryOut)}</text>
 		</g>
 
-		{#each animatedDots as dot}
+		{#each animatedDots as dot (dot.id)}
 			<g class={dot.cssClass}>
-				<SvgDot pathId={dot.pathId} duration={dot.duration} begin={dot.begin}></SvgDot>
+				<SvgDot id={dot.id} pathId={dot.pathId} duration={dot.duration} begin={dot.begin}></SvgDot>
 			</g>
 		{/each}
 	</svg>
