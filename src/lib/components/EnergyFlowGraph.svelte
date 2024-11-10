@@ -45,7 +45,7 @@
 			dots.push(...createDotsForPower(power.gridOut, 'pvToGrid', 'yellow'));
 			dots.push(...createDotsForPower(power.directPv, 'pvToHome', 'yellow'));
 			dots.push(...createDotsForPower(power.batteryIn, 'pvToBattery', 'yellow'));
-			dots.push(...createDotsForPower(currentPower, 'gridToHome', 'gray'));
+			dots.push(...createDotsForPower(power.gridIn, 'gridToHome', 'gray'));
 			dots.push(...createDotsForPower(power.batteryOut, 'batteryToHome', 'green'));
 		}
 
@@ -63,11 +63,12 @@
 	}
 
 	function createDotsForPower(power: number, pathId: string, cssClass: string): AnimatedDot[] {
+		const duration = 2;
 		const dots: AnimatedDot[] = [];
 
-		let count = Math.round(power);
-		if (count == 0 && power >= 0.01) {
-			count = 1;
+		let count = Math.floor(power + 1);
+		if (count == 1 && power < 0.01) {
+			count = 0;
 		}
 
 		if (count <= 0) {
@@ -75,7 +76,7 @@
 		}
 
 		count = Math.min(count, 5);
-		const distance = 2 / count;
+		const distance = duration / count;
 
 		for (let i = 0; i < count; i++) {
 			const id = pathId + i;
@@ -85,7 +86,7 @@
 				id: id,
 				syncId: syncId,
 				pathId: pathId,
-				duration: 2,
+				duration: duration,
 				begin: i > 0 ? syncId + '.begin + ' + distance + 's' : '0s',
 				cssClass: cssClass
 			});

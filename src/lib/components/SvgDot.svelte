@@ -1,8 +1,8 @@
 <script lang="ts">
 	export let id;
 	export let pathId;
-	export let duration = 2;
-	export let begin = '0s';
+	export let duration;
+	export let begin;
 </script>
 
 <circle r="3" fill="currentColor" opacity="0">
@@ -13,7 +13,7 @@
 		attributeName="opacity"
 		dur="{duration}s"
 		{begin}
-		keyTimes="0; 0.05; 0.95; 1"
+		keyTimes="0; 0.02; 0.98; 1"
 		values="0; 1; 1; 0"
 		repeatCount="indefinite" />
 </circle>
