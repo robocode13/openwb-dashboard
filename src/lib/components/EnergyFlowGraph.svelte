@@ -3,12 +3,10 @@
 	import type { Energy } from '$lib/energy';
 	import { formatPower, formatEnergy as formatEnergy, formatHours } from '$lib/format';
 	import type { Power } from '$lib/power';
-	import { onMount, tick } from 'svelte';
 	import Ring from './Ring.svelte';
 	import SvgDot from './SvgDot.svelte';
 	import SvgRing from './SvgRing.svelte';
 	import WarningIcon from './WarningIcon.svelte';
-	import hotkeys from 'hotkeys-js';
 
 	type AnimatedDot = {
 		id: string;
@@ -24,27 +22,17 @@
 	export let battery: Battery | undefined;
 	export let power: Power | undefined;
 
-	let currentPower = 0.5;
 	let animatedDots: AnimatedDot[] = [];
 
 	$: updateDotAnimation(power);
 	$: batteryStatus = updateBattery(power);
-
-	onMount(() => {
-		hotkeys('space', () => {
-			currentPower += 1;
-		});
-		hotkeys('backspace', () => {
-			currentPower -= 1;
-		});
-	});
 
 	async function updateDotAnimation(power?: Power) {
 		const dots: AnimatedDot[] = [];
 
 		if (power) {
 			dots.push(...createDotsForPower(power.gridOut, 'pvToGrid', 'yellow'));
-			dots.push(...createDotsForPower(currentPower, 'pvToHome', 'yellow'));
+			dots.push(...createDotsForPower(power.directPv, 'pvToHome', 'yellow'));
 			dots.push(...createDotsForPower(power.batteryIn, 'pvToBattery', 'yellow'));
 			dots.push(...createDotsForPower(power.gridIn, 'gridToHome', 'gray'));
 			dots.push(...createDotsForPower(power.batteryOut, 'batteryToHome', 'green'));
@@ -54,9 +42,10 @@
 	}
 
 	function createDotsForPower(power: number, pathId: string, cssClass: string): AnimatedDot[] {
+		const syncId = pathId + 0;
 		const duration = 2;
 		const dots: AnimatedDot[] = [];
-		let nextId = pathId + (dots.length + 1);
+		const existingDots = animatedDots.filter((dot) => dot.pathId.startsWith(pathId));
 		let radius = 3.5;
 
 		let count = Math.floor(power + 1);
@@ -76,9 +65,18 @@
 		const distance = duration / count;
 
 		for (let i = 0; i < count; i++) {
-			const id = pathId + i;
-			const syncId = pathId + 0;
-			const begin = i > 0 ? syncId + '.begin + ' + distance * i + 's' : '0s';
+			const offset = (distance * i).toFixed(2);
+			const begin = i > 0 ? syncId + '.begin + ' + offset + 's' : '0s';
+
+			const dot = existingDots.find((dot) => dot.begin === begin && !dot.phasingOut);
+
+			if (dot) {
+				dot.radius = radius;
+				dots.push(dot);
+				continue;
+			}
+
+			const id = i > 0 ? pathId + offset : pathId + 0;
 
 			dots.push({
 				id: id,
@@ -89,6 +87,17 @@
 				cssClass: cssClass
 			});
 		}
+
+		const phasedOutDots = existingDots.filter((dot) => dots.every((d) => d.begin !== dot.begin));
+		phasedOutDots.forEach((dot) => {
+			const element = document.getElementById(dot.id);
+			element?.addEventListener('repeatEvent', () => {
+				animatedDots = animatedDots.filter((d) => d.id !== dot.id);
+			});
+			dot.phasingOut = true;
+		});
+
+		dots.push(...phasedOutDots);
 
 		return dots;
 	}
