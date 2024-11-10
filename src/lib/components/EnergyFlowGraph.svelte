@@ -14,6 +14,7 @@
 		id: string;
 		syncId: string;
 		pathId: string;
+		radius: number;
 		duration: number;
 		begin: string;
 		cssClass: string;
@@ -65,6 +66,7 @@
 	function createDotsForPower(power: number, pathId: string, cssClass: string): AnimatedDot[] {
 		const duration = 2;
 		const dots: AnimatedDot[] = [];
+		let radius = 3.5;
 
 		let count = Math.floor(power + 1);
 		if (count == 1 && power < 0.01) {
@@ -73,6 +75,10 @@
 
 		if (count <= 0) {
 			return dots;
+		}
+
+		if (count === 1) {
+			radius = 1.5 + power * 2;
 		}
 
 		count = Math.min(count, 5);
@@ -86,6 +92,7 @@
 				id: id,
 				syncId: syncId,
 				pathId: pathId,
+				radius: radius,
 				duration: duration,
 				begin: i > 0 ? syncId + '.begin + ' + distance + 's' : '0s',
 				cssClass: cssClass
@@ -266,7 +273,7 @@
 
 		{#each animatedDots as dot (dot.id)}
 			<g class={dot.cssClass}>
-				<SvgDot id={dot.id} pathId={dot.pathId} duration={dot.duration} begin={dot.begin}></SvgDot>
+				<SvgDot id={dot.id} pathId={dot.pathId} radius={dot.radius} duration={dot.duration} begin={dot.begin}></SvgDot>
 			</g>
 		{/each}
 	</svg>

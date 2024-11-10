@@ -1,11 +1,12 @@
 <script lang="ts">
 	export let id;
 	export let pathId;
+	export let radius = 3;
 	export let duration;
 	export let begin;
 </script>
 
-<circle r="3" fill="currentColor" opacity="0">
+<circle r={radius} fill="currentColor" opacity="0">
 	<animateMotion {id} dur="{duration}s" {begin} repeatCount="indefinite">
 		<mpath href="#{pathId}" />
 	</animateMotion>
