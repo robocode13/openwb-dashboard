@@ -78,7 +78,7 @@
 		}
 
 		if (count === 1) {
-			radius = 1.5 + power * 2;
+			radius = 2 + power * 1.5;
 		}
 
 		count = Math.min(count, 5);
